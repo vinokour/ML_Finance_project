@@ -12,15 +12,34 @@ import sys
 #     - analysts: set {analyst_code, analyst_code, ...}
 # """
 def GetData(filename):
-    print(filename)
-    workbook = load_workbook(filename, data_only=True)
-    ws = workbook["Sheet1"]
-    source_data = ws['B6' : 'B200']
-    market_price_data = ws['B3' : 'BK3'][0]
-    
-    analyst_col = 0
 
-    pass
+    workbook = load_workbook(filename, data_only=True)
+ 
+    ws = workbook["Sheet1"]
+    source_data = ws['B6' : 'BK200']
+    market_price_data = ws['B3' : 'BK3'][0]
+    analyst_col = 0
+    monthly_data = []
+    market_prices = []
+    analysts = set()
+    while analyst_col < len(source_data[0]) - 1:
+        current_month_data = dict()
+        for row in range(len(source_data)):
+            cell_value = source_data[row][analyst_col].value
+            if cell_value != 0 and cell_value is not None:
+                current_month_data[cell_value] = source_data[row][analyst_col + 1].value
+                analysts.add(cell_value)
+        monthly_data.append(current_month_data)
+        market_prices.append(market_price_data[analyst_col + 1].value)
+        #Goes to the next analysts
+        analyst_col += 2
+    print("Monthly data")
+    print(monthly_data)
+    print("Market prices")
+    print(market_prices)
+    print("analysts")
+    print(analysts)
+    return monthly_data,market_prices,analysts
 
 # """
 # Input:
