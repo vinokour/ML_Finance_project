@@ -1,5 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
@@ -9,6 +8,8 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
+            
+            "pythonArgs": ["./predictor.py","./googl_test.xlsx"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
