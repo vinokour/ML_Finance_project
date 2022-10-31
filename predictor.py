@@ -35,13 +35,6 @@ def GetData(filename):
         monthly_data.append(current_month_data)
         mkt_prices.append(mkt_price_data[analyst_col+1].value)
         analyst_col+=2
-
-    # print("monthly data")
-    # print(monthly_data)
-    # print("mkt_prices")
-    # print(mkt_prices)
-    # print("analysts")
-    # print(analysts)
     return monthly_data, mkt_prices, analysts
 
 """
@@ -169,8 +162,11 @@ Input:
 Output:
     - predicted price floats
 """
-def Predict():
-    pass
+def Predict(learned_weights, predicted_prices):
+    predicted_prices = np.array(predicted_prices)
+    #use dot product to get predicted price
+    return np.dot(learned_weights, predicted_prices)
+
 
 filename = sys.argv[1]
 analyst_data, mkt_prices, analysts = GetData(filename)
@@ -182,190 +178,16 @@ for row in cleaned_data:
     training_data.append(row[:-6])
 
 leanrned_weights, average_months, stdv = LearnWeights(training_data, mkt_prices)
+predicting_data = []
+for row in cleaned_data:
+    predicting_data.append(row[-1])
+
+
 
 print(leanrned_weights)
-#
-# predicted_price = Predict(leanrned_weights, analyst_data[-1])
-#
-# print("predicted price", predicted_price)
-# print("estimated months to reach", average_months)
+print("Predicted price:", Predict(leanrned_weights, predicting_data))
+print("Average months to reach:", average_months)
 
-# """
-# """
-# Input:
-#      - filename: str of an excel file
-# Output data:
-#     - market_prices: [100, 200, ..,] len(marker_prices) = num_months
-#     - monthly_data: [{analyst_code: target_price, ...},{...}, ...] len(monthly_data) = num_months,
-#     - analysts: set {analyst_code, analyst_code, ...}
-# """
-# def GetData(filename):
-
-#     workbook = load_workbook(filename, data_only=True)
- 
-#     ws = workbook["Sheet1"]
-#     source_data = ws['B6' : 'BK200']
-#     market_price_data = ws['B3' : 'BK3'][0]
-#     analyst_col = 0
-#     monthly_data = []
-#     market_prices = []
-#     analysts = set()
-#     while analyst_col < len(source_data[0]) - 1:
-#         current_month_data = dict()
-#         for row in range(len(source_data)):
-#             cell_value = source_data[row][analyst_col].value
-#             if cell_value != 0 and cell_value is not None:
-#                 current_month_data[cell_value] = source_data[row][analyst_col + 1].value
-#                 analysts.add(cell_value)
-#         monthly_data.append(current_month_data)
-#         market_prices.append(market_price_data[analyst_col + 1].value)
-#         #Goes to the next analysts
-#         analyst_col += 2
-#     # print("Monthly data")
-#     # print(monthly_data)
-#     # print("Market prices")
-#     # print(market_prices)
-#     # print("analysts")
-#     # print(analysts)
-#     return monthly_data,market_prices,analysts
-
-# # """
-# # Input:
-# #     - monthly_data: [{analyst_code: target_price, ...},{...}, ...] len(monthly_data) = num_months,
-# #     - analysts: set {analyst_code, analyst_code, ...}
-# # Output data:
-# #     - analyst_data: [[100,200,300],[150,150,400],[...],] len(analyst_data) = num_analysts, len(analyst_data[0]) = num_months
-# # """
-# def Clean(monthly_data, analysts):
-#     def Cleaned_single_analyst(single_analyst_monthly_prediction):
-#         for index in range(len(single_analyst_monthly_prediction)):
-#             price_target = single_analyst_monthly_prediction[index]
-#             if not price_target is None:
-#                 continue
-#             def GetNextVal(index):
-#                 next_index = index + 1
-#                 while next_index < len(single_analyst_monthly_prediction):
-#                     val = single_analyst_monthly_prediction[next_index]
-#                     if not val is None:
-#                         return val, next_index - index +1
-#                     next_index += 1
-#                 return None, None
-#             #3 scenarios
-#             #no precvious, yes next 
-#             next_val, next_distance = GetNextVal(index)
-#             if index == 0 and not next_val is None:
-#                 single_analyst_monthly_prediction[index] = next_val
-#             elif  index !=0 and not next_val is None:
-#                 prev_value = single_analyst_monthly_prediction[index - 1]
-#                 single_analyst_monthly_prediction[index] = prev_value + ((next_val - prev_value) / next_distance)
-#             elif index != 0 and next_val is None:
-#                 prev_value = single_analyst_monthly_prediction[index - 1]
-#                 single_analyst_monthly_prediction[index] = prev_value
-#         return single_analyst_monthly_prediction
-#             #yes previous, no next
-#             #yes previous, yes next
-#     sorted_analysts = sorted(list(analysts))
-#     cleaned_data = []
-    
-#     for analyst in sorted_analysts:
-#         single_analyst_monthly_prediction = []
-#         nones_count = 0
-#         previous_none = False
-#         for curr_month in monthly_data:
-#             if not analyst in curr_month or curr_month[analyst] is None or curr_month[analyst] == "@NA":
-#                 single_analyst_monthly_prediction.append(None) 
-#                 if previous_none:
-#                     nones_count += 1
-#                     if nones_count > 5:
-#                         break
-#                 else:
-#                     nones_count = 1
-#                 previous_none = True
-
-#                 # nones_count += 1
-#             else:
-#                 single_analyst_monthly_prediction.append(curr_month[analyst])
-#                 previous_none = False
-#         if nones_count <= 5: 
-#             single_analyst_monthly_prediction = Cleaned_single_analyst(single_analyst_monthly_prediction) if nones_count > 0 else single_analyst_monthly_prediction
-#             cleaned_data.append(single_analyst_monthly_prediction)
-#     return cleaned_data
-
-
-        
-#     pass
-
-# # Input:
-# #     - monthly_data: [{analyst_code: target_price, ...},{...}, ...] len(monthly_data) = num_months,
-# #     - analysts: set {analyst_code, analyst_code, ...}
-# # Output data:
-# #     - analyst_data: [[100,200,300],[150,150,400],[...],] len(analyst_data) = num_analysts, len(analyst_data[0]) = num_months
-# # """
-# #Learn the weights on which analysts to include 
-# def LearnWeights(analyst_data, market_prices):
-#     num_analysts = len(analyst_data)
-#     num_months = len(analyst_data[0])
-#     analyst_weights = [1/num_analysts for i in range(num_analysts)]
-#     analyst_weights = np.array(analyst_weights)
-#     analyst_data = np.array(analyst_data)
-    
-#     def scoring_function(analyst_weights, give_std_and_mean = False):
-#         predicted_prices = np.matmul(analyst_weights, analyst_data)
-#         time_to_reach_prices = list()
-#         count24 = 0
-#         for index in range(num_months):
-#             found = False
-#             mkt_prices_index = index +1
-#             while mkt_prices_index < len(mkt_prices):
-#                 if (predicted_prices[index] >= market_prices[index] and int(market_prices[mkt_prices_index]) >= int(predicted_prices[index])) or (predicted_prices[index] < market_prices[index] and int(market_prices[mkt_prices_index]) <= int(predicted_prices[index])):
-#                     time_to_reach_prices.append((mkt_prices_index - index) - (abs(market_prices[mkt_prices_index] - predicted_prices[index])/abs(market_prices[mkt_prices_index] - market_prices[mkt_prices_index-1]) ))
-#                     found = True
-#                     break
-#                 mkt_prices_index += 1
-#             if not found:
-#                 time_to_reach_prices.append(24)
-#                 count24 += 1
-#             stdev = statistics.stdev(time_to_reach_prices)
-#             mean = statistics.mean(time_to_reach_prices)
-#             score = mean + 1.3 * stdev + count24*4
-#             if give_std_and_mean:
-#                     print("average:", mean)
-#                     print("stdev:", stdev)
-#                     return score, mean, stdev
-#             # return score
-#         print("Before learning")
-#         x = scoring_function(analyst_weights, give_std_and_mean = True)
-
-#         result = minimize(x, analyst_weights, method='SLSQP', options={'disp': True})
-#         print("After learning")
-#         score, mean, stdev = scoring_function(result.x, give_std_and_mean = True)
-
-#         return result.x, score, mean, stdev
-
-
-
-#     # Input:
-# #     - leanrned_weights: [float, ..] len = num_analysts
-# #     - target_prices: [float, ...] len = num_analysts
-# # Output:
-# #     - predicted price floats
-# # """
-    
-
-# def Predict():
-#     pass
-
-# filename = sys.argv[1]
-# analyst_data, mkt_prices, analysts = GetData(filename)
-# clean_data = Clean(analyst_data, analysts)
-# training_data = []
-# for row in clean_data:
-#     #ignores last 6 months
-#     training_data.append(row[:-6])
-# print(mkt_prices)
-
-# learned_weights, avg_months, stdev = LearnWeights(training_data, mkt_prices)
-# print(learned_weights)
 
 
 
